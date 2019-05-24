@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tic Tac Toe </title>
+        <style>
+            canvas {
+                border:1px solid #d3d3d3;
+                background-color: #f1f1f1;
+            }
+        </style>
+    </head>
+    <body onload="startGame()">
+        <script>
+            var canvas_x,canvas_y,box,row,column;
+            var player1 = "Circles";
+            var player2 = "Crosses";
+            var grid = [];
+            var crosses = [];
+            var circles = [];
+            let turn = 1;
+            const combinations = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            
+            function startGame() {
+                gameSpace.start();
+                gameSpace.board();
+                gameSpace.canvas.addEventListener("mousedown",doMouseDown,false);
+                gameSpace.gridCoor.blocks();
+            }
+            
+            window.addEventListener('keydown', function (e) {
+                    //alert(e.keyCode)
+                    if (e.keyCode === 83) {
+                        player1 = prompt("What is the name of player 1?");
+                        player2 = prompt("What is the name of player 2?");
+                    }
+                });
+            
+            var gameSpace = {
+                canvas : document.createElement("canvas"),
+                start : function() {
+                    this.canvas.id = "myCanvas";
+                    this.canvas.width = 270;
+                    this.canvas.height = 270;
+                    this.context = this.canvas.getContext("2d");
+                    document.body.insertBefore(this.canvas,document.body.childNodes[0]);
+                    this.frameNo = 0;
+                    },
+                clear : function() {
+                    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    },
+                board : function() {
+                    var gameFrame = {
+                        tL : 90
+                    };
+                    function makeLine(xs,ys,xe,ye) {
+                        var ctx = gameSpace.context;
+                        ctx.moveTo(xs,ys);
+                        ctx.lineTo(xe,ye);
+                        ctx.stroke();
+                    }
+                    makeLine(gameFrame.tL,0,gameFrame.tL,3*gameFrame.tL);
+                    makeLine(2*gameFrame.tL,0,2*gameFrame.tL,3*gameFrame.tL);
+                    makeLine(0,2*gameFrame.tL,3*gameFrame.tL,2*gameFrame.tL);
+                    makeLine(0,gameFrame.tL,3*gameFrame.tL,gameFrame.tL);
+                },
+                gridCoor: {
+                    xcoor: {
+                      col1: [0,90],
+                      col2: [90,180],
+                      col3: [180,270] 
+                    },
+                    ycoor: {
+                      row1: [0,90],
+                      row2: [90,180],
+                      row3: [180,270]
+                    },
+                    blocks: function(){
+                        var x;
+                        var y;
+                        for (y in this.ycoor) {
+                            for (x in this.xcoor) {
+                                grid.push([y,x]);
+                            }
+                        }
+                    }   
+                }
+            };
+            
+            function doMouseDown(event) {
+                canvas_x = event.pageX-10;
+                canvas_y = event.pageY-10;
+                findGrid(canvas_x,canvas_y);
+                if (circles.includes(box) || crosses.includes(box)) {
+                    alert("This grid is filled, please try another grid");
+                } else if (turn%2 === 0) {
+                    makeXpiece(gameSpace.gridCoor.xcoor[column][0]+5,gameSpace.gridCoor.ycoor[row][0]+5);
+                    crosses.push(box);
+                    turn += 1;
+                } else {
+                    makeOpiece(gameSpace.gridCoor.xcoor[column][0]+5,gameSpace.gridCoor.ycoor[row][0]+5);
+                    circles.push(box);
+                    turn += 1;
+                }
+            }
+            
+            function findGrid(xClick,yClick) {
+                var x,y;
+                for (x in gameSpace.gridCoor.xcoor) {
+                    if (xClick > gameSpace.gridCoor.xcoor[x][0] && xClick < gameSpace.gridCoor.xcoor[x][1]) {
+                        column = x;
+                        for (y in gameSpace.gridCoor.ycoor) {
+                            if (yClick > gameSpace.gridCoor.ycoor[y][0] && yClick < gameSpace.gridCoor.ycoor[y][1]){
+                                row = y;
+                            }
+                        }
+                    }
+                }
+                for (x in grid) {
+                    if (grid[x][0] === row && grid[x][1] === column) {
+                        box = x;
+                    }
+                }
+            }
+            
+            function makeXpiece(x,y) {
+                var ctx = gameSpace.canvas.getContext("2d");
+                var img = new Image(); /*global Image*/
+                img.src = "https://cdn.pixabay.com/photo/2016/05/23/11/32/colorful-1410129_960_720.png";
+                ctx.drawImage(img,x,y,80,80);
+                setTimeout(function() {checkThreeInARow(crosses,box);},200);
+                setTimeout(function() {
+                    if (turn === 10) {
+                        alert("Tie!");
+                        gameSpace.clear();
+                    }
+                },500);
+            }
+            
+            function makeOpiece(x,y) {
+                var ctx = gameSpace.canvas.getContext("2d");
+                var img = new Image(); /*global Image*/
+                img.src = "https://www.nicepng.com/png/detail/9-90273_3d-blue-circle-png-abstract-vector-circles-png.png";
+                ctx.drawImage(img,x,y,80,80);
+                setTimeout(function() {checkThreeInARow(circles,box);},200);
+                setTimeout(function() {
+                    if (turn === 10) {
+                        alert("Tie!");
+                        document.location.reload();
+                    }
+                },500);
+                
+            }
+            
+            function checkThreeInARow (type,grid) {
+                var a, name;
+                if (type === crosses) {
+                    name = player2;
+                } else {name = player1;}
+                let check = combinations.filter(x => x.includes(Number(grid)));
+                let nType = type.map(x => {return Number(x);});
+                for (a in check) {
+                  if (nType.includes(check[a][0]) && nType.includes(check[a][1]) && nType.includes(check[a][2])) {
+                      alert("CONGRATS! " + name + " won!");
+                      document.location.reload();
+                  }
+                }
+            }
+        </script>
+        <h1 style="color:#4F62FF;font-family:comic sans MS">Welcome to Tic Tac Toe!</h1>
+        <p style="font-family:comic sans MS;">Play against a friend and be the first to get three in a row.<br> To enter the players names press 's'.</p>
+    </body>
+</html>
