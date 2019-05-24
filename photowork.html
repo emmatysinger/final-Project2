@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> </title>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="200" height="100" style="border:1px solid #c3c3c3;">
+            <script>
+                var canvas = document.getElementById("myCanvas");
+                var ctx = canvas.getContext("2d");
+                var img = new Image(); /*global Image*/
+                img.src = "https://cdn.pixabay.com/photo/2016/05/23/11/32/colorful-1410129_960_720.png"
+                //img.width = "8";
+                //img.height = "8";
+                ctx.drawImage(img,0,0,80,80)
+                window.addEventListener('keypress', function (e) {
+                    alert(e.keyCode)
+                },true)
+                
+            </script>
+        </canvas>
+    </body>
+</html>
